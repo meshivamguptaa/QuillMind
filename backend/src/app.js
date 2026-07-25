@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import authRoutes from "./routes/auth.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -19,5 +21,6 @@ app.get("/", (req, res) => {
     message: "Welcome to QuillMind API",
   });
 });
+app.use("/api/auth", authRoutes);
 
 export default app;
