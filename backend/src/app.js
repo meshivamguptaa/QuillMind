@@ -5,6 +5,8 @@ import morgan from "morgan";
 
 import authRoutes from "./routes/auth.routes.js";
 
+import blogRoutes from "./routes/blog.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -22,5 +24,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 app.use("/api/auth", authRoutes);
+
+app.use("/api/blogs", blogRoutes);
 
 export default app;
