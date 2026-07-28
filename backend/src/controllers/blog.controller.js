@@ -61,13 +61,32 @@ export const createBlog = async (req, res) => {
 };
 export const getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find()
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search || "";
+
+    const query = {
+      title: {
+        $regex: search,
+        $options: "i",
+      },
+    };
+
+    const blogs = await Blog.find(query)
       .populate("author", "name email")
-      .sort({ createdAt: -1 });
+      .sort({
+        createdAt: -1,
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const totalBlogs = await Blog.countDocuments(query);
 
     res.json({
       success: true,
-      count: blogs.length,
+      page,
+      totalPages: Math.ceil(totalBlogs / limit),
+      totalBlogs,
       blogs,
     });
   } catch (error) {
@@ -77,6 +96,7 @@ export const getBlogs = async (req, res) => {
     });
   }
 };
+
 export const getBlog = async (req, res) => {
   try {
     const blog = await Blog.findOne({
@@ -133,10 +153,21 @@ export const updateBlog = async (req, res) => {
 
     if (title && title !== blog.title) {
       blog.title = title;
-      blog.slug = slugify(title, {
+      let slug = slugify(title, {
         lower: true,
-        strict: true,
-      });
+         strict: true,
+    });
+
+    const existingBlog = await Blog.findOne({
+     slug,
+    _id: { $ne: blog._id },
+    });
+
+    if (existingBlog) {
+         slug = `${slug}-${Date.now()}`;
+    }
+
+    blog.slug = slug;
     }
 
     if (content) {
