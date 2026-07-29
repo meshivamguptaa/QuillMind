@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDashboard } from "../../services/dashboardService";
 
+import {
+  deleteBlog,
+} from "../../services/blogService";
+
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState(null);
 
@@ -17,6 +21,24 @@ const Dashboard = () => {
       console.error(error);
     }
   };
+
+  const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this blog?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await deleteBlog(id);
+
+    alert("Blog deleted successfully!");
+
+    fetchDashboard();
+  } catch (error) {
+    alert(error.response?.data?.message || "Delete failed.");
+  }
+};
 
   if (!dashboard) return <h1>Loading...</h1>;
 
@@ -89,14 +111,19 @@ const Dashboard = () => {
             </div>
 
             <div className="space-x-3">
+                <Link
+                    to={`/edit-blog/${blog._id}`}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                >
+                 Edit
+                </Link>
 
-              <Link to={`/edit-blog/${blog._id}`}>
-                Edit
-              </Link>
-
-              <button>
+              <button
+                onClick={() => handleDelete(blog._id)}
+                className="bg-red-500 text-white px-3 py-1 rounded"
+            >
                 Delete
-              </button>
+            </button>
 
             </div>
           </div>
