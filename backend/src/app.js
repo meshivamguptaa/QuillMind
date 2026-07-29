@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth.routes.js";
 
 import blogRoutes from "./routes/blog.routes.js";
 
+import dashboardRoutes from "./routes/dashboard.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -26,5 +28,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/blogs", blogRoutes);
+
+
+app.use("/api/dashboard", dashboardRoutes);
 
 export default app;
