@@ -12,6 +12,9 @@ export const getBlog = (slug) =>
 export const updateBlog = (id, data) =>
   api.put(`/blogs/${id}`, data);
 
+export const getBlogById = (id) =>
+  api.get(`/blogs/edit/${id}`);
+
 export const deleteBlog = (id) =>
   api.delete(`/blogs/${id}`);
 

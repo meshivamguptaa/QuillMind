@@ -249,4 +249,32 @@ export const getMyBlogs = async (req, res) => {
     });
   }
 };
+export const getBlogById = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
 
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found.",
+      });
+    }
+
+    if (blog.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to access this blog.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      blog,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
