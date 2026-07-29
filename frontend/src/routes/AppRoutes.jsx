@@ -19,6 +19,8 @@ import Dashboard from "../pages/dashboard/Dashboard";
 
 import NotFound from "../pages/errors/NotFound";
 
+import ProtectedRoute from "./ProtectedRoute";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -36,13 +38,19 @@ function AppRoutes() {
       </Route>
 
       {/* Dashboard Routes */}
-      <Route element={<DashboardLayout />}>
-        <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+<Route
+  element={
+    <ProtectedRoute>
+      <DashboardLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
 
-        <Route path={ROUTES.CREATE_BLOG} element={<CreateBlog />} />
+  <Route path={ROUTES.CREATE_BLOG} element={<CreateBlog />} />
 
-        <Route path={ROUTES.EDIT_BLOG} element={<EditBlog />} />
-      </Route>
+  <Route path={ROUTES.EDIT_BLOG} element={<EditBlog />} />
+</Route>
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
