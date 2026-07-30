@@ -9,6 +9,8 @@ import blogRoutes from "./routes/blog.routes.js";
 
 import dashboardRoutes from "./routes/dashboard.routes.js";
 
+import aiRoutes from "./routes/ai.routes.js";
+
 const app = express();
 
 app.use(cors());
@@ -31,5 +33,7 @@ app.use("/api/blogs", blogRoutes);
 
 
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api/ai", aiRoutes);
 
 export default app;
