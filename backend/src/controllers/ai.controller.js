@@ -1,12 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
-
 export const generateBlog = async (req, res) => {
   try {
     const { topic } = req.body;
+
+    const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
     if (!topic) {
       return res.status(400).json({
@@ -30,7 +30,7 @@ Return ONLY valid JSON in this exact format:
 `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
     });
 
