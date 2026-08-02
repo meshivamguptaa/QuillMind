@@ -75,3 +75,6 @@ Protected endpoints require:
 ```
 Authorization: Bearer YOUR_JWT_TOKEN
 ```
+
+
+# next topic
