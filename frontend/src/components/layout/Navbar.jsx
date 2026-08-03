@@ -1,7 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../constants/routes";
+import { useAuth } from "../../context/AuthContext";
 
 function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(ROUTES.HOME);
+  };
+
   return (
     <header className="border-b border-slate-800 bg-slate-900">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -17,9 +26,30 @@ function Navbar() {
 
           <Link to={ROUTES.BLOGS}>Blogs</Link>
 
-          <Link to={ROUTES.LOGIN}>Login</Link>
+          {user ? (
+            <>
+              <Link to={ROUTES.DASHBOARD}>
+                Dashboard
+              </Link>
 
-          <Link to={ROUTES.REGISTER}>Register</Link>
+              <button
+                onClick={handleLogout}
+                className="text-red-400 hover:text-red-500"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to={ROUTES.LOGIN}>
+                Login
+              </Link>
+
+              <Link to={ROUTES.REGISTER}>
+                Register
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
