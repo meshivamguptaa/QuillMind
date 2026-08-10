@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import { createBlog } from "../../services/blogService";
 import { generateBlog } from "../../services/aiService";
@@ -21,10 +22,11 @@ const CreateBlog = () => {
 
   const [topic, setTopic] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleGenerate = async () => {
     if (!topic.trim()) {
-      alert("Please enter a topic.");
+      toast.error("Please enter a topic.");
       return;
     }
 
@@ -39,11 +41,11 @@ const CreateBlog = () => {
       setValue("seoTitle", data.blog.seoTitle);
       setValue("seoDescription", data.blog.seoDescription);
 
-      // If your backend returns tags in the future,
-      // uncomment this line:
-      // setValue("tags", data.blog.tags.join(", "));
+      toast.success("Blog generated successfully!");
     } catch (error) {
-      alert(error.response?.data?.message || "AI generation failed.");
+      toast.error(
+        error.response?.data?.message || "AI generation failed."
+      );
     } finally {
       setGenerating(false);
     }
@@ -51,6 +53,8 @@ const CreateBlog = () => {
 
   const onSubmit = async (formData) => {
     try {
+      setSubmitting(true);
+
       formData.tags = formData.tags
         ? formData.tags
             .split(",")
@@ -60,14 +64,18 @@ const CreateBlog = () => {
 
       await createBlog(formData);
 
-      alert("Blog created successfully!");
+      toast.success("Blog created successfully!");
 
       reset();
       setTopic("");
 
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to create blog.");
+      toast.error(
+        error.response?.data?.message || "Failed to create blog."
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -160,9 +168,10 @@ const CreateBlog = () => {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-8 py-3 rounded hover:bg-blue-700"
+          disabled={submitting}
+          className="bg-blue-600 text-white px-8 py-3 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          Publish Blog
+          {submitting ? "Publishing..." : "Publish Blog"}
         </button>
       </form>
     </div>

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import { registerUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,6 +15,8 @@ const Register = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -24,19 +28,29 @@ const Register = () => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
       const { data } = await registerUser(form);
 
       login(data.token, data.user);
 
+      toast.success("Registration successful!");
+
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      toast.error(
+        err.response?.data?.message || "Registration failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20">
-      <h1 className="text-3xl font-bold mb-6">Register</h1>
+    <div className="max-w-md mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8">
+        Register
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -67,13 +81,15 @@ const Register = () => {
           value={form.password}
           onChange={handleChange}
           required
+          minLength={6}
         />
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 transition"
+          disabled={loading}
+          className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 transition disabled:opacity-50"
         >
-          Register
+          {loading ? "Creating Account..." : "Register"}
         </button>
       </form>
     </div>

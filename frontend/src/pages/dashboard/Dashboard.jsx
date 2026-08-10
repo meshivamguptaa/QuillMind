@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getDashboard } from "../../services/dashboardService";
+import toast from "react-hot-toast";
 
-import {
-  deleteBlog,
-} from "../../services/blogService";
+import { getDashboard } from "../../services/dashboardService";
+import { deleteBlog } from "../../services/blogService";
 
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     fetchDashboard();
@@ -19,34 +19,41 @@ const Dashboard = () => {
       setDashboard(data);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to load dashboard.");
     }
   };
 
   const handleDelete = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this blog?"
-  );
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this blog?"
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  try {
-    await deleteBlog(id);
+    try {
+      setDeletingId(id);
 
-    alert("Blog deleted successfully!");
+      await deleteBlog(id);
 
-    fetchDashboard();
-  } catch (error) {
-    alert(error.response?.data?.message || "Delete failed.");
+      toast.success("Blog deleted successfully!");
+
+      fetchDashboard();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Delete failed."
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (!dashboard) {
+    return <h1>Loading...</h1>;
   }
-};
-
-  if (!dashboard) return <h1>Loading...</h1>;
 
   return (
-    <div className="p-8">
-
+    <div>
       <div className="flex justify-between items-center">
-
         <div>
           <h1 className="text-4xl font-bold">
             Welcome Back 👋
@@ -63,13 +70,12 @@ const Dashboard = () => {
         >
           Create Blog
         </Link>
-
       </div>
 
       <div className="grid grid-cols-3 gap-6 mt-10">
-
         <div className="border rounded p-5">
           <h3>Total Blogs</h3>
+
           <p className="text-3xl font-bold">
             {dashboard.stats.total}
           </p>
@@ -77,6 +83,7 @@ const Dashboard = () => {
 
         <div className="border rounded p-5">
           <h3>Published</h3>
+
           <p className="text-3xl font-bold">
             {dashboard.stats.published}
           </p>
@@ -84,53 +91,58 @@ const Dashboard = () => {
 
         <div className="border rounded p-5">
           <h3>Drafts</h3>
+
           <p className="text-3xl font-bold">
             {dashboard.stats.drafts}
           </p>
         </div>
-
       </div>
 
       <div className="mt-12">
-
         <h2 className="text-2xl font-bold mb-5">
           Recent Blogs
         </h2>
 
-        {dashboard.recentBlogs.map((blog) => (
-          <div
-            key={blog._id}
-            className="border rounded p-5 mb-4 flex justify-between"
-          >
-            <div>
-              <h3 className="font-semibold">
-                {blog.title}
-              </h3>
+        {dashboard.recentBlogs.length === 0 ? (
+          <p className="text-gray-500">
+            You haven't created any blogs yet.
+          </p>
+        ) : (
+          dashboard.recentBlogs.map((blog) => (
+            <div
+              key={blog._id}
+              className="border rounded p-5 mb-4 flex justify-between"
+            >
+              <div>
+                <h3 className="font-semibold">
+                  {blog.title}
+                </h3>
 
-              <p>{blog.status}</p>
-            </div>
+                <p>{blog.status}</p>
+              </div>
 
-            <div className="space-x-3">
+              <div className="space-x-3">
                 <Link
-                    to={`/edit-blog/${blog._id}`}
-                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  to={`/edit-blog/${blog._id}`}
+                  className="bg-blue-500 text-white px-3 py-1 rounded"
                 >
-                 Edit
+                  Edit
                 </Link>
 
-              <button
-                onClick={() => handleDelete(blog._id)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-            >
-                Delete
-            </button>
-
+                <button
+                  onClick={() => handleDelete(blog._id)}
+                  disabled={deletingId === blog._id}
+                  className="bg-red-500 text-white px-3 py-1 rounded disabled:opacity-50"
+                >
+                  {deletingId === blog._id
+                    ? "Deleting..."
+                    : "Delete"}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-
+          ))
+        )}
       </div>
-
     </div>
   );
 };

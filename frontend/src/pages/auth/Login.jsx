@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import { loginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 
@@ -12,6 +14,8 @@ const Login = () => {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -23,28 +27,39 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
       const { data } = await loginUser(form);
 
       login(data.token, data.user);
 
+      toast.success("Login successful!");
+
       navigate("/dashboard");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      toast.error(
+        err.response?.data?.message || "Login failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
+    <div className="max-w-md mx-auto p-8">
+      <h1 className="text-4xl font-bold mb-8">
+        Login
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
         <input
           className="w-full border p-3 rounded"
           type="email"
           name="email"
           placeholder="Email"
+          value={form.email}
           onChange={handleChange}
+          required
         />
 
         <input
@@ -52,15 +67,18 @@ const Login = () => {
           type="password"
           name="password"
           placeholder="Password"
+          value={form.password}
           onChange={handleChange}
+          required
         />
 
         <button
-          className="bg-black text-white w-full py-3 rounded"
+          type="submit"
+          disabled={loading}
+          className="bg-black text-white w-full py-3 rounded disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
-
       </form>
     </div>
   );

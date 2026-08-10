@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
   getBlogById,
@@ -8,7 +9,6 @@ import {
 
 const EditBlog = () => {
   const { id } = useParams();
-
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -21,6 +21,8 @@ const EditBlog = () => {
     seoTitle: "",
     seoDescription: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchBlog();
@@ -41,7 +43,7 @@ const EditBlog = () => {
         seoDescription: data.blog.seoDescription || "",
       });
     } catch (error) {
-      alert("Failed to load blog.");
+      toast.error("Failed to load blog.");
     }
   };
 
@@ -56,6 +58,8 @@ const EditBlog = () => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
       await updateBlog(id, {
         ...form,
         tags: form.tags
@@ -64,11 +68,15 @@ const EditBlog = () => {
           .filter(Boolean),
       });
 
-      alert("Blog updated successfully!");
+      toast.success("Blog updated successfully!");
 
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response?.data?.message || "Update failed.");
+      toast.error(
+        error.response?.data?.message || "Update failed."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,6 +96,7 @@ const EditBlog = () => {
           onChange={handleChange}
           placeholder="Title"
           className="w-full border rounded p-3"
+          required
         />
 
         <textarea
@@ -97,6 +106,7 @@ const EditBlog = () => {
           rows={3}
           placeholder="Excerpt"
           className="w-full border rounded p-3"
+          required
         />
 
         <input
@@ -131,6 +141,7 @@ const EditBlog = () => {
           onChange={handleChange}
           rows={15}
           className="w-full border rounded p-3"
+          required
         />
 
         <input
@@ -152,9 +163,10 @@ const EditBlog = () => {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-8 py-3 rounded"
+          disabled={loading}
+          className="bg-blue-600 text-white px-8 py-3 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          Update Blog
+          {loading ? "Updating..." : "Update Blog"}
         </button>
       </form>
     </div>
