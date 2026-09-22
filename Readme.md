@@ -155,6 +155,9 @@ npm run dev
 
 ---
 
+# Deployed Link
+https://quillmind.netlify.app/
+
 # 🛣️ Development Roadmap
 
 * [x] Initialize MERN project
